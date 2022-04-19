@@ -31,3 +31,5 @@ jobs:
         run: docker --version
       - name: Build docker image
         run: docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
+      - name: Push docker image
+        run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
