@@ -8,6 +8,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   IMAGE_TAG: develop
+  DEPLOY_PATH: /home/ubuntu/agile
   
 jobs:
   Build:
@@ -36,3 +37,21 @@ jobs:
 
       - name: Push Docker Image
         run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+
+  Deploy:
+    runs-on: ubuntu-latest
+    needs:
+      - build-and-push-dev-image
+
+    steps:
+      - name: Deploy to Remote Docker Host
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_PRIVATE_KEY }}
+          script: |
+            cd ${{ env.DEPLOY_PATH }}
+            ls -lah
+            docker-compose pull
+            docker-compose up -d
